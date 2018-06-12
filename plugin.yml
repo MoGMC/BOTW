@@ -1,0 +1,9 @@
+name: BOTW
+main: net.monkeycraft.plugin.BOTW.BOTWPlugin
+version: 0.1
+commands:
+  botw:
+    description: Build!
+    usage: /botw <...>
+    aliases: [buildoftheweek]
+    permission: botw.use
