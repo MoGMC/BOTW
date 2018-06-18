@@ -88,15 +88,17 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (sender instanceof Player && args.length > 0) {
-            if (args[0].equalsIgnoreCase("tp")) return tp((Player) sender);
-            if (args[0].equalsIgnoreCase("settp")) return setTp((Player) sender);
-            if (args[0].equalsIgnoreCase("submit")) return submitBuild((Player) sender);
-            if (args[0].equalsIgnoreCase("check") && args.length > 1) return tp((Player) sender, args[1]);
+            if (args[0].equalsIgnoreCase("tp") && sender.hasPermission("botw.user")) return tp((Player) sender);
+            if (args[0].equalsIgnoreCase("settp") && sender.hasPermission("botw.admin")) return setTp((Player) sender);
+            if (args[0].equalsIgnoreCase("submit") && sender.hasPermission("botw.user"))
+                return submitBuild((Player) sender);
+            if (args[0].equalsIgnoreCase("check") && args.length > 1 && sender.hasPermission("botw.admin"))
+                return tp((Player) sender, args[1]);
         }
 
         if (args.length > 0) {
             try {
-                if (args[0].equalsIgnoreCase("list")) {
+                if (args[0].equalsIgnoreCase("list") && sender.hasPermission("botw.admin")) {
                     if (args.length > 1) return showBuildList(sender, Integer.parseInt(args[1]));
                     else return showBuildList(sender, 0);
                 }
@@ -104,13 +106,25 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
                 return showBuildList(sender, 0);
             }
 
-            if (args[0].equalsIgnoreCase("clear")) return clearBuilds(sender);
-            if (args[0].equalsIgnoreCase("setwinners") && args.length > 1) return setWinners(sender, args[1], args[2]);
+            if (args[0].equalsIgnoreCase("clear") && sender.hasPermission("botw.admin")) return clearBuilds(sender);
+            if (args[0].equalsIgnoreCase("setwinners") && args.length > 1 && sender.hasPermission("botw.admin"))
+                return setWinners(sender, args[1], args[2]);
+            if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("botw.admin")) return reload();
         }
 
-        return sendBotwMessage(sender);
+        return !sender.hasPermission("botw.user") || sendBotwMessage(sender);
     }
 
+    private boolean reload() {
+        try {
+            onDisable();
+            onEnable();
+        } catch (Exception e) { // Just in case
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
     /**
      * Set winners of build of the week
      *
@@ -166,7 +180,12 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
      * @return Command status (usually true)
      */
     private boolean tp(Player player) {
-        player.teleport(tpLocation);
+        try {
+            player.teleport(tpLocation);
+        } catch (NullPointerException e) {
+            player.sendMessage(ChatColor.BLUE + "Nobody has won yet! Try again later.");
+            return true;
+        }
         List<String> botwMessage = messages.get("tpMessage");
         if (botwMessage == null || botwMessage.isEmpty()) {
             player.sendMessage("Something went wrong! Tell a server admin they forgot to specify tp-message.");
@@ -252,7 +271,7 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
             List<String> _messages = new ArrayList<>();
 
             for (Map.Entry<UUID, Location> entry : builds.entrySet()) { // This loops through a HashMap as if it were a list
-                String playername = getServer().getPlayer(entry.getKey()).getDisplayName();
+                String playername = getServer().getPlayer(entry.getKey()).getName();
                 _messages.add("§c- " + playername); // For example: - Ploffie
             }
             if (_messages.size() > 10)
