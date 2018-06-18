@@ -1,0 +1,39 @@
+messages: # Only set these as array values, even if it's only 1 entry.
+  botw-message: # Every line is a line in game too
+    - ""
+    - "§9Every week two different plots will be featured in front of spawn."
+    - "§9Submit your plot, and the best two builds will get a spot!"
+    - "§4Please only submit fully finished/completed plots."
+    - "§9The current two builds are by: §6$Player1$ §9and §6$Player2$§9." # $Player1$ and 2 is replaced with botw-player1 and 2 respectively.
+    - ""
+    - "§9To submit your plot, make sure you're standing on your OWN plot, then type §2/botw submit§9."
+    - "§9Builds will usually be checked during the weekend, so make sure to submit your build before friday and don’t change or remove it before monday."
+    - ""
+    - "§9You can only submit one build per week. Submitting a second build will replace your previous submission."
+    - "§9Everytime two new builds are chosen, old submissions will get cleared from the list and you’ll have to submit your build again."
+    - ""
+    - "§9Type §2/botw tp §9to check out the current builds of the week."
+  tp-message:
+    - "§9Current build of the weeks are built by:"
+    - "§6$Player1$ §9and §6$Player2$"
+  submit-confirmation:
+    - "§9Plot submitted for build of the week, thanks for entering!"
+
+winning-info:
+  botw-player1: "Ploffie"
+  botw-player2: "bob"
+  location:
+    world: "standard"
+    x: 0
+    y: 0
+    z: 0
+
+# Threshold at which the submission list should be split
+submission-list-threshold: 10
+
+builds: # These are the build submissions
+  ed951599-35e5-4d60-9b65-71c3ce4d9f52:
+    world: "standard"
+    x: 0
+    y: 0
+    z: 0

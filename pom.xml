@@ -20,11 +20,6 @@
             <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.monkeygamesmc</groupId>
-            <artifactId>PlayerDataPlugin</artifactId>
-            <version>0.2</version>
-        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -43,6 +38,7 @@
                 <directory>.</directory>
                 <includes>
                     <include>plugin.yml</include>
+                    <include>config.yml</include>
                 </includes>
             </resource>
         </resources>
