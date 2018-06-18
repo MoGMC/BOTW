@@ -45,17 +45,21 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
 
         // load builds
         getServer().getLogger().info("Loading build submissions...");
-        for (String uuid : submissions.getConfigurationSection("builds").getKeys(false)) {
-            ConfigurationSection sector = submissions.getConfigurationSection("builds." + uuid);
-            Location loc = new Location(
-                    getServer().getWorld(sector.getString("world")),
-                    sector.getInt("x"),
-                    sector.getInt("y"),
-                    sector.getInt("z")
-            );
-            builds.put(UUID.fromString(uuid), loc);
+        try {
+            for (String uuid : submissions.getConfigurationSection("builds").getKeys(false)) {
+                ConfigurationSection sector = submissions.getConfigurationSection("builds." + uuid);
+                Location loc = new Location(
+                        getServer().getWorld(sector.getString("world")),
+                        sector.getInt("x"),
+                        sector.getInt("y"),
+                        sector.getInt("z")
+                );
+                builds.put(UUID.fromString(uuid), loc);
+            }
+            getServer().getLogger().info("Done!");
+        } catch (NullPointerException e) {
+            getServer().getLogger().info("No build submissions were found. Skipping...");
         }
-        getServer().getLogger().info("Done!");
 
         // Load all config stuff
         messages.put("botwMessage", config.getStringList("messages.botw-message"));
@@ -120,17 +124,11 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
             if (args[0].equalsIgnoreCase("clear") && sender.hasPermission("botw.admin")) return clearBuilds(sender);
             if (args[0].equalsIgnoreCase("setwinners") && args.length > 1 && sender.hasPermission("botw.admin"))
                 return setWinners(sender, args[1], args[2]);
-            if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("botw.admin")) return reload(sender);
         }
 
         return !sender.hasPermission("botw.user") || sendBotwMessage(sender);
     }
 
-    private boolean reload(CommandSender sender) {
-        reloadConfig();
-        sender.sendMessage("Build of the week reloaded.");
-        return true;
-    }
     /**
      * Set winners of build of the week
      *

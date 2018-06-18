@@ -6,7 +6,7 @@
 
     <groupId>net.monkeycraft.plugin</groupId>
     <artifactId>BOTW</artifactId>
-    <version>0.3</version>
+    <version>1.0</version>
     <repositories>
         <repository>
             <id>spigot-repo</id>
