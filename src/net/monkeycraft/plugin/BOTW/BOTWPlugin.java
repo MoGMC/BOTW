@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class BOTWPlugin extends JavaPlugin implements Listener {
@@ -27,6 +28,7 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
     private int buildListThreshold;
     private List<List<String>> buildListMessages = new ArrayList<>();
     private boolean buildListWasUpdated = true;
+    private final File submissionsFile = new File(getDataFolder(), "submissions.yml");
 
     @Override
     public void onEnable() {
@@ -35,8 +37,7 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
 
         saveDefaultConfig();
         config = getConfig();
-        File submissionsFile = new File(getDataFolder(), "submissions.yml");
-        if(!submissionsFile.exists()) {
+        if (!submissionsFile.exists()) {
             getServer().getLogger().severe("Missing submissions.yml. Shutting down.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
@@ -96,6 +97,12 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
         config.set("winning-info.location.z", (int) tpLocation.getZ());
 
         saveConfig();
+        try {
+            submissions.save(submissionsFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            getServer().getLogger().warning("Something went wrong while saving submissions!");
+        }
         getServer().getLogger().info("Done!");
     }
 
@@ -275,7 +282,8 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
             List<String> _messages = new ArrayList<>();
 
             for (Map.Entry<UUID, Location> entry : builds.entrySet()) { // This loops through a HashMap as if it were a list
-                String playername = getServer().getPlayer(entry.getKey()).getName();
+                String playername = (Bukkit.getOfflinePlayer(entry.getKey()) != null && Bukkit.getOfflinePlayer(entry.getKey()).isOnline()) ?
+                        Bukkit.getPlayer(entry.getKey()).getName() : Bukkit.getOfflinePlayer(entry.getKey()).getName();
                 _messages.add("§c- " + playername); // For example: - Ploffie
             }
             if (_messages.size() > 10)
