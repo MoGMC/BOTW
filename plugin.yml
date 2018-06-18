@@ -6,4 +6,4 @@ commands:
     description: Build!
     usage: /botw <...>
     aliases: [buildoftheweek]
-    permission: botw.use
+    permission: botw.user
