@@ -1,22 +1,26 @@
 package net.monkeycraft.plugin.BOTW;
 
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.*;
 
 public class BOTWPlugin extends JavaPlugin implements Listener {
 
     private final HashMap<String, List<String>> messages = new HashMap<>();
     private FileConfiguration config;
+    private FileConfiguration submissions;
     private HashMap<UUID, Location> builds = new HashMap<>();
     private String botwWinnerOne, botwWinnerTwo;
     private Location tpLocation;
@@ -31,11 +35,18 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
 
         saveDefaultConfig();
         config = getConfig();
+        File submissionsFile = new File(getDataFolder(), "submissions.yml");
+        if(!submissionsFile.exists()) {
+            getServer().getLogger().severe("Missing submissions.yml. Shutting down.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        submissions = YamlConfiguration.loadConfiguration(submissionsFile);
 
         // load builds
         getServer().getLogger().info("Loading build submissions...");
-        for (String uuid : config.getConfigurationSection("builds").getKeys(false)) {
-            ConfigurationSection sector = config.getConfigurationSection("builds." + uuid);
+        for (String uuid : submissions.getConfigurationSection("builds").getKeys(false)) {
+            ConfigurationSection sector = submissions.getConfigurationSection("builds." + uuid);
             Location loc = new Location(
                     getServer().getWorld(sector.getString("world")),
                     sector.getInt("x"),
@@ -67,10 +78,10 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
 
         // This part is purely for submissions
         for (HashMap.Entry<UUID, Location> entry : builds.entrySet()) {
-            config.set("builds." + entry.getKey().toString() + ".world", entry.getValue().getWorld().getName());
-            config.set("builds." + entry.getKey().toString() + ".x", (int) entry.getValue().getX());
-            config.set("builds." + entry.getKey().toString() + ".y", (int) entry.getValue().getY());
-            config.set("builds." + entry.getKey().toString() + ".z", (int) entry.getValue().getZ());
+            submissions.set("builds." + entry.getKey().toString() + ".world", entry.getValue().getWorld().getName());
+            submissions.set("builds." + entry.getKey().toString() + ".x", (int) entry.getValue().getX());
+            submissions.set("builds." + entry.getKey().toString() + ".y", (int) entry.getValue().getY());
+            submissions.set("builds." + entry.getKey().toString() + ".z", (int) entry.getValue().getZ());
         } // </submissions>
 
         // Store all config stuff
@@ -109,20 +120,15 @@ public class BOTWPlugin extends JavaPlugin implements Listener {
             if (args[0].equalsIgnoreCase("clear") && sender.hasPermission("botw.admin")) return clearBuilds(sender);
             if (args[0].equalsIgnoreCase("setwinners") && args.length > 1 && sender.hasPermission("botw.admin"))
                 return setWinners(sender, args[1], args[2]);
-            if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("botw.admin")) return reload();
+            if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("botw.admin")) return reload(sender);
         }
 
         return !sender.hasPermission("botw.user") || sendBotwMessage(sender);
     }
 
-    private boolean reload() {
-        try {
-            onDisable();
-            onEnable();
-        } catch (Exception e) { // Just in case
-            e.printStackTrace();
-            return false;
-        }
+    private boolean reload(CommandSender sender) {
+        reloadConfig();
+        sender.sendMessage("Build of the week reloaded.");
         return true;
     }
     /**

@@ -30,10 +30,3 @@ winning-info:
 
 # Threshold at which the submission list should be split
 submission-list-threshold: 10
-
-builds: # These are the build submissions
-  ed951599-35e5-4d60-9b65-71c3ce4d9f52:
-    world: "standard"
-    x: 0
-    y: 0
-    z: 0

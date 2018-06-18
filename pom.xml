@@ -39,6 +39,7 @@
                 <includes>
                     <include>plugin.yml</include>
                     <include>config.yml</include>
+                    <include>submissions.yml</include>
                 </includes>
             </resource>
         </resources>
